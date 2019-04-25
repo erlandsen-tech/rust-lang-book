@@ -1,0 +1,8 @@
+[package]
+name = "vector_v"
+version = "0.1.0"
+authors = ["John Inge <johninge@varleg.no>"]
+edition = "2018"
+
+[dependencies]
+rand = "*"
