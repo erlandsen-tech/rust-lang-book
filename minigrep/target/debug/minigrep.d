@@ -1,0 +1,1 @@
+/home/jingel/Documents/Programmering/rust/rustbook/minigrep/target/debug/minigrep: /home/jingel/Documents/Programmering/rust/rustbook/minigrep/src/lib.rs /home/jingel/Documents/Programmering/rust/rustbook/minigrep/src/main.rs
