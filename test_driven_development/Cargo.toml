@@ -1,0 +1,8 @@
+[package]
+name = "test_driven_development"
+version = "0.1.0"
+authors = ["John Inge <johninge@varleg.no>"]
+edition = "2018"
+
+[dependencies]
+chrono = "0.4.6"
