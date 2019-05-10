@@ -14,6 +14,7 @@ pub struct Config {
 
 impl Config {
     pub fn new(mut args: std::env::Args) -> Result<Config, &'static str> {
+        args.next();
         let query = match args.next() {
             Some(arg) => arg,
             None => return Err("Didn't get a query string"),
