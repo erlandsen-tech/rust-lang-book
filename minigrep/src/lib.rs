@@ -13,16 +13,23 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new(args: &[String]) -> Result<Config, &'static str> {
-        if args.len() < 3 {
-            return Err("Not enough arguments");
-        }
-        let query = args[1].clone();
-        let filename = args[2].clone();
+    pub fn new(mut args: std::env::Args) -> Result<Config, &'static str> {
+        let query = match args.next() {
+            Some(arg) => arg,
+            None => return Err("Didn't get a query string"),
+        };
+        let filename = match args.next() {
+            Some(arg) => arg,
+            None => return Err("Didn't get a file name"),
+        };
 
-        let case_sensitive = get_case_sensitive(&args);
+        let case_sensitive = get_case_sensitive(args);
 
-        Ok(Config { query, filename, case_sensitive})
+        Ok(Config {
+            query,
+            filename,
+            case_sensitive,
+        })
     }
 }
 
@@ -40,38 +47,28 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
-    let mut results = Vec::new();
-
-    for line in contents.lines() {
-        if line.contains(query) {
-            results.push(line);
-        }
+    contents.lines()
+        .filter(|line| line.contains(query))
+        .collect()
     }
-    results
-}
-
 
 pub fn search_case_insensitive<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
-    let query = query.to_lowercase();
-    let mut results = Vec::new();
-
-    for line in contents.lines() {
-        if line.to_lowercase().contains(&query) {
-            results.push(line);
-        }
-    }
-    results
+    let query = &query.to_lowercase();
+    contents.lines()
+        .filter(|line| line.contains(query))
+        .collect()
 }
-pub fn get_case_sensitive(args: &[String]) -> bool {
+pub fn get_case_sensitive(mut args: std::env::Args) -> bool {
     let mut case_sensitive = true;
-    if args.len() > 3 {
-        if args[3] == "c" {
-            case_sensitive = false;
-        }
-
-    }
-    else {
-            case_sensitive = env::var("CASE_INSENSITIVE").is_err();
+    for _i in 1..args.len(){
+        match args.next() {
+            Some(arg) => {
+                if arg == "c" {
+                    case_sensitive = false
+                }
+            }
+            None => case_sensitive = env::var("CASE_INSENSITIVE").is_err(),
+        };
     }
     case_sensitive
 }
@@ -98,19 +95,29 @@ Rust:
 safe, fast, productive.
 Pick three.
 Trust me.";
-        assert_eq!(vec!["Rust:", "Trust me."], 
-                   search_case_insensitive(query, contents));
+        assert_eq!(
+            vec!["Rust:", "Trust me."],
+            search_case_insensitive(query, contents)
+        );
     }
 
     #[test]
     fn test_if_case_insensitive() {
-        let args = [String::from("test"),String::from("test"), String::from("c")];
+        let args = [
+            String::from("test"),
+            String::from("test"),
+            String::from("c"),
+        ];
         assert_eq!(get_case_sensitive(&args), false);
     }
 
     #[test]
     fn test_if_case_sensitive() {
-        let args = [String::from("test"),String::from("test"), String::from("x")];
+        let args = [
+            String::from("test"),
+            String::from("test"),
+            String::from("x"),
+        ];
         assert_eq!(get_case_sensitive(&args), false);
     }
 }
